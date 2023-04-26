@@ -22,7 +22,7 @@ resource "aws_s3_bucket_ownership_controls" "exposedbucket" {
   }
 }
 
-resource "aws_s3_bucket_acl" "exposedbucket_acl" {
+resource "aws_s3_bucket_acl" "exposedbucket" {
   depends_on = [
 	aws_s3_bucket_public_access_block.exposedbucket,
 	aws_s3_bucket_ownership_controls.exposedbucket,
