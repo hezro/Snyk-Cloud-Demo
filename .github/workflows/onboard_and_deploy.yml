@@ -98,10 +98,28 @@ jobs:
     # Get Snyk Cloud Environment ID
 
     - name: Get Snyk Cloud Environment ID
-      run : |
-           out=$(curl -X GET 'https://api.snyk.io/rest/orgs/${{ secrets.SNYK_ORG }}/cloud/environments?version=2022-12-21~beta' -H 'Authorization: token ${{ secrets.SNYK_TOKEN }}' | jq -c --arg key "aws" '.data[] | select (.attributes.kind=="aws")' | jq .id | tr -d \" )
-           echo "SNYK_CLOUD_ID=$(echo "${out}")" >> $GITHUB_ENV
-           
+      shell: bash
+      run: |
+        mkdir temp
+        cd temp
+        curl -X GET 'https://api.snyk.io/rest/orgs/${{ secrets.SNYK_ORG }}/cloud/environments?version=2022-12-21~beta' \
+        -H 'Authorization: token ${{ secrets.SNYK_TOKEN }}' \
+        | jq -c --arg key "aws" '.data[] | select (.attributes.kind=="aws")' | jq .id | tr -d \" \
+        > cloud_ids
+        out=$(tail -n 1 cloud_ids)
+        echo "SNYK_CLOUD_ID=$(echo "${out}")" >> $GITHUB_ENV
+        
+      #run : |
+      #     out=$(curl -X GET 'https://api.snyk.io/rest/orgs/${{ secrets.SNYK_ORG }}/cloud/environments?version=2022-12-21~beta' -H 'Authorization: token ${{ secrets.SNYK_TOKEN }}' | jq -c --arg key "aws" '.data[] | select (.attributes.kind=="aws")' | jq .id | tr -d \" )
+      #     echo "SNYK_CLOUD_ID=$(echo "${out}")" >> $GITHUB_ENV
+
+    # Cleanup
+    
+    - name: Cleanup
+      shell: bash
+      run: |
+        cd ../    
+        rm -rf temp
 
     ##### Deploy and Scan Vulnerable Terraform #####
 
